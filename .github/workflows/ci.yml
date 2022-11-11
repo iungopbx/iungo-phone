@@ -1,0 +1,69 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Firefox in it
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+      - run: yarn install
+      - run: DEBUG=eslint:cli-engine yarn run lint:all
+      - run: yarn run build
+      - run: yarn run test:ut
+      - name: E2E test
+        env:
+          IUNGO_WP_CALLER_CLIENT_ID: ${{ secrets.IUNGO_WP_CALLER_CLIENT_ID }}
+          IUNGO_WP_CALLER_CLIENT_SECRET: ${{ secrets.IUNGO_WP_CALLER_CLIENT_SECRET }}
+          IUNGO_WP_CALLER_SERVER: ${{ secrets.IUNGO_WP_CALLER_SERVER }}
+          IUNGO_WP_RECEIVER_CLIENT_ID: ${{ secrets.IUNGO_WP_RECEIVER_CLIENT_ID }}
+          IUNGO_WP_RECEIVER_CLIENT_SECRET: ${{ secrets.IUNGO_WP_RECEIVER_CLIENT_SECRET }}
+          IUNGO_WP_RECEIVER_SERVER: ${{ secrets.IUNGO_WP_RECEIVER_SERVER }}
+          IUNGO_WP_CALLER_USERNAME: ${{ secrets.IUNGO_WP_CALLER_USERNAME }}
+          IUNGO_WP_CALLER_EXTENSION: ${{ secrets.IUNGO_WP_CALLER_EXTENSION }}
+          IUNGO_WP_CALLER_PASSWORD: ${{ secrets.IUNGO_WP_CALLER_PASSWORD }}
+          IUNGO_WP_RECEIVER_USERNAME: ${{ secrets.IUNGO_WP_RECEIVER_USERNAME }}
+          IUNGO_WP_RECEIVER_EXTENSION: ${{ secrets.IUNGO_WP_RECEIVER_EXTENSION }}
+          IUNGO_WP_RECEIVER_PASSWORD: ${{ secrets.IUNGO_WP_RECEIVER_PASSWORD }}
+        if: ${{ env.IUNGO_WP_CALLER_CLIENT_ID != '' && env.IUNGO_WP_RECEIVER_PASSWORD != '' &&  env.IUNGO_WP_CALLER_PASSWORD != '' }}
+        run: |
+          yarn run test:e2e
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: .coverage/lcov.info
+      - name: Github Pages
+        if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist
+          CLEAN: true
+      - run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Release
+        if: ${{ env.TAG != '' && !contains(env.TAG, '/') && !contains(env.TAG, '-') && github.repository == 'iungopbx/iungo-web-phone' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/iungo-web-phone.js
+            dist/iungo-web-phone.min.js
+        env:
+          GITHUB_REPOSITORY: iungopbx/iungo-web-phone
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm publish
+        if: ${{ env.TAG != '' && !contains(env.TAG, '/') && github.repository == 'iungopbx/iungo-web-phone' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,16 @@
+/*.js
+/.chrome
+/.cache-loader
+/.coverage
+/.screenshots
+/.editorconfig
+/.eslintrc
+/.prettierrc
+/.huskyrc
+/.lintstagedrc
+/demo
+/dist/*.html
+/dist/demo*.js
+/tests
+/Procfile
+/tsconfig.json
