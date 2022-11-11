@@ -1,6 +1,6 @@
 {
   "name": "iungo-web-phone",
-  "version": "0.9.0",
+  "version": "5.2.0",
   "scripts": {
     "test": "yarn run test:ut && yarn run test:e2e",
     "test:coverage": "cat .coverage/lcov.info | coveralls -v",
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "7.5.0",
-    "@ringcentral/sdk": "4.7.3",
+    "@iungo/sdk": "git@github.com:iungopbx/iungo-js.git",
     "@types/expect-puppeteer": "3.3.1",
     "@types/express-serve-static-core": "4.17.31",
     "@types/jest": "24.0.15",
@@ -34,7 +34,7 @@
     "crypto-browserify": "3.12.0",
     "dotenv": "8.0.0",
     "eslint": "6.8.0",
-    "eslint-config-ringcentral-typescript": "3.0.0",
+    "eslint-config-iungo-typescript": "git@github.com:iungopbx/eslint-config-iungo-typescript.git",
     "html-webpack-plugin": "5.5.0",
     "husky": "2.4.1",
     "istanbul-instrumenter-loader": "3.0.1",
