@@ -34,7 +34,6 @@
     "crypto-browserify": "3.12.0",
     "dotenv": "8.0.0",
     "eslint": "6.8.0",
-    "eslint-config-iungo-typescript": "git@github.com:iungopbx/eslint-config-iungo-typescript.git",
     "html-webpack-plugin": "5.5.0",
     "husky": "2.4.1",
     "istanbul-instrumenter-loader": "3.0.1",
